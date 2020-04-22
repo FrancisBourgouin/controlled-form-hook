@@ -1,63 +1,49 @@
 import { useState, useEffect } from "react";
 
-export const useControlledForm = (formInputs) => {
-	const parsedFormInputs = (formInputs) => {
-		const output = {};
-		formInputs.forEach((formInput) => {
-			const {
-				name,
-				value = "",
-				placeholder = "",
-				required = false,
-				type = "text",
-			} = formInput;
+export function useControlledForm(formInputs) {
+  const parsedFormInputs = (formInputs) => {
+    const output = {};
+    formInputs.forEach((formInput) => {
+      const {
+        name,
+        value = "",
+        placeholder = "",
+        required = false,
+        type = "text",
+      } = formInput;
 
-			output[name] = { name, value, placeholder, required, type };
-		});
-		return output;
-	};
+      output[name] = { name, value, placeholder, required, type };
+    });
+    return output;
+  };
 
-	const [formValues, setFormValues] = useState(parsedFormInputs(formInputs));
-	const [errors, setErrors] = useState([]);
+  const [formValues, setFormValues] = useState(parsedFormInputs(formInputs));
+  const [errors, setErrors] = useState([]);
 
-	// useEffect(() => {
-	// 	const parsedFormInputs = formInputs.map((formInput) => {
-	// 		const {
-	// 			name,
-	// 			value = "",
-	// 			placeholder = "",
-	// 			required = false,
-	// 			type = "text",
-	// 		} = formInput;
-	// 		return { name, value, placeholder, required, type };
-	// 	});
+  const handleInput = (e) => {
+    const { name, value } = e.target;
+    const newFormValues = { ...formValues };
 
-	// 	setFormValues(parsedFormInputs);
-	// }, []);
+    newFormValues[name].value = value;
+    setFormValues(newFormValues);
+  };
 
-	const handleInput = (e) => {
-		const { name, value } = e.target;
-		const newFormValues = { ...formValues };
+  useEffect(() => {
+    const newErrors = [];
+    for (const name in formValues) {
+      const { required, value, placeholder } = formValues[name];
+      if (required && !value) {
+        newErrors.push({ name, placeholder });
+      }
+    }
+    setErrors(newErrors);
+  }, [formValues]);
 
-		newFormValues[name].value = value;
-		setFormValues(newFormValues);
-	};
+  const parsedFormData = {};
+  Object.values(formValues).forEach(
+    ({ name, value }) => (parsedFormData[name] = value)
+  );
+  debugger;
 
-	useEffect(() => {
-		const newErrors = [];
-		for (const name in formValues) {
-			const { required, value } = formValues[name];
-			if (required && !value) {
-				newErrors.push(name);
-			}
-		}
-		setErrors(newErrors);
-	}, [formValues]);
-
-	const parsedFormData = {};
-	Object.values(formValues).forEach(
-		({ name, value }) => (parsedFormData[name] = value)
-	);
-
-	return [Object.values(formValues), parsedFormData, handleInput, errors];
-};
+  return [Object.values(formValues), parsedFormData, handleInput, errors];
+}
