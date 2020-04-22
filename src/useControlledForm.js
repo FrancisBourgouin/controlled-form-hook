@@ -43,7 +43,6 @@ export function useControlledForm(formInputs) {
   Object.values(formValues).forEach(
     ({ name, value }) => (parsedFormData[name] = value)
   );
-  debugger;
 
   return [Object.values(formValues), parsedFormData, handleInput, errors];
 }
